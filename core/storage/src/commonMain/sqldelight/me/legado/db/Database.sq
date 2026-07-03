@@ -1,0 +1,129 @@
+-- Legado KMP Database Schema
+
+CREATE TABLE IF NOT EXISTS books (
+    book_url TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    author TEXT NOT NULL,
+    cover_url TEXT,
+    intro TEXT,
+    chapter_list_size INTEGER NOT NULL DEFAULT 0,
+    last_chapter TEXT,
+    last_chapter_time INTEGER NOT NULL DEFAULT 0,
+    word_count INTEGER NOT NULL DEFAULT 0,
+    can_update INTEGER NOT NULL DEFAULT 1,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    origin TEXT NOT NULL DEFAULT '',
+    origin_name TEXT NOT NULL DEFAULT '',
+    variable TEXT,
+    read_config TEXT
+);
+
+CREATE TABLE IF NOT EXISTS chapters (
+    book_url TEXT NOT NULL,
+    url TEXT NOT NULL,
+    title TEXT NOT NULL,
+    "index" INTEGER NOT NULL DEFAULT 0,
+    is_volume INTEGER NOT NULL DEFAULT 0,
+    resource_url TEXT,
+    tag TEXT,
+    PRIMARY KEY (book_url, url)
+);
+
+CREATE TABLE IF NOT EXISTS book_sources (
+    book_source_url TEXT PRIMARY KEY NOT NULL,
+    book_source_name TEXT NOT NULL,
+    book_source_group TEXT,
+    login_url TEXT,
+    header TEXT,
+    enabled INTEGER NOT NULL DEFAULT 1,
+    enabled_explore INTEGER NOT NULL DEFAULT 1,
+    search_weight INTEGER NOT NULL DEFAULT 0,
+    explore_url TEXT,
+    rule_search TEXT,
+    rule_book_info TEXT,
+    rule_toc TEXT,
+    rule_content TEXT,
+    rule_explore TEXT
+);
+
+CREATE TABLE IF NOT EXISTS cache (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT NOT NULL,
+    expire_time INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_books_order ON books("order");
+CREATE INDEX IF NOT EXISTS idx_books_name ON books(name);
+CREATE INDEX IF NOT EXISTS idx_chapters_book_url ON chapters(book_url);
+CREATE INDEX IF NOT EXISTS idx_chapters_index ON chapters("index");
+
+-- Queries
+
+selectBooks:
+SELECT * FROM books ORDER BY "order" ASC;
+
+selectBookByUrl:
+SELECT * FROM books WHERE book_url = ?;
+
+insertBook:
+INSERT OR REPLACE INTO books (book_url, name, author, cover_url, intro, chapter_list_size, last_chapter, last_chapter_time, word_count, can_update, "order", origin, origin_name, variable, read_config)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteBook:
+DELETE FROM books WHERE book_url = ?;
+
+selectChaptersByBookUrl:
+SELECT * FROM chapters WHERE book_url = ? ORDER BY "index" ASC;
+
+insertChapter:
+INSERT OR REPLACE INTO chapters (book_url, url, title, "index", is_volume, resource_url, tag)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+deleteChaptersByBookUrl:
+DELETE FROM chapters WHERE book_url = ?;
+
+selectAllBookSources:
+SELECT * FROM book_sources;
+
+selectBookSourceByUrl:
+SELECT * FROM book_sources WHERE book_source_url = ?;
+
+insertBookSource:
+INSERT OR REPLACE INTO book_sources (book_source_url, book_source_name, book_source_group, login_url, header, enabled, enabled_explore, search_weight, explore_url, rule_search, rule_book_info, rule_toc, rule_content, rule_explore)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteBookSource:
+DELETE FROM book_sources WHERE book_source_url = ?;
+
+selectCacheByKey:
+SELECT value FROM cache WHERE key = ? AND (expire_time = 0 OR expire_time > strftime('%s', 'now') * 1000);
+
+insertCache:
+INSERT OR REPLACE INTO cache (key, value, expire_time)
+VALUES (?, ?, ?);
+
+deleteCache:
+DELETE FROM cache WHERE key = ?;
+
+deleteAllCache:
+DELETE FROM cache;
+
+deleteExpiredCache:
+DELETE FROM cache WHERE expire_time > 0 AND expire_time <= strftime('%s', 'now') * 1000;
+
+-- Additional queries for repositories
+
+countChaptersByBookUrl:
+SELECT COUNT(*) FROM chapters WHERE book_url = ?;
+
+selectChapterByIndex:
+SELECT * FROM chapters WHERE book_url = ? AND "index" = ?;
+
+selectEnabledBookSources:
+SELECT * FROM book_sources WHERE enabled = 1;
+
+selectBookSourcesByGroup:
+SELECT * FROM book_sources WHERE book_source_group = ?;
+
+updateSourceEnabled:
+UPDATE book_sources SET enabled = ? WHERE book_source_url = ?;

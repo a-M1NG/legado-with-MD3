@@ -1,20 +1,92 @@
-*.iml
-.gradle
-local.properties
-.DS_Store
-/build
+```
+# Kotlin/Multiplatform specific
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.klib
+*.kotlin_metadata
+
+# Gradle
+.gradle/
 build/
-/captures
-.externalNativeBuild
-/release
-/tmp
+!gradle.properties
+!gradlew
+!gradlew.bat
+
+# Android
+*.apk
+*.aar
+*.ap_
+local.properties
+captures/
+
+# iOS
+*.xcodeproj/
+*.xcworkspace/
+*.framework/
+*.dylib
+*.dSYM/
+
+# Dependencies
 node_modules/
-/app/app
-/app/google
-/app/gradle.properties
-/package-lock.json
+**/node_modules/
+
+# Python (if present)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.env
+.env.local
+.env.
+
+# Logs
+*.log
+.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*~
+.swp
+.swo
+
+# IDE
+.vscode/
 .idea/
-# Kotlin 2.0
-.kotlin/
-/.vscode/settings.json
-/.codex/skills
+*.swp
+*.swo
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+*.coverage
+
+# Build outputs
+dist/
+target/
+out/
+bin/
+obj/
+
+# Cache
+.mypy_cache/
+.pytest_cache/
+.nyc_output/
+coverage/
+```
